@@ -40,7 +40,7 @@ func TerminalOptions(page playwright.Page) {
 		case "4":
 			mailText = setEmailContent(mailText)
 		case "5":
-			mailCustomerPath, companies = setCsvPath(mailCustomerPath)
+			mailCustomerPath, companies = setCsvPath(mailCustomerPath, companies)
 		case "s":
 			fmt.Print(companies)
 			fmt.Print(mailOwner)
@@ -148,7 +148,7 @@ func setEmailGroup(oldMailGroup string) (newMailGroup string) {
 	reader := bufio.NewReader(os.Stdin)
 
 	ClearScreen()
-	fmt.Print("Set email group\n\n")
+	fmt.Print("Set email group")
 	fmt.Printf("\nCurrent: %v", oldMailGroup)
 	fmt.Println("\n1) Arrangementer")
 	fmt.Println("2) BedKom")
@@ -206,19 +206,23 @@ func setEmailTitle(oldTitle string) (newTitle string) {
 	return newTitle
 }
 
-func setCsvPath(oldCsvPath string) (csvPath string, companiesObject []Company) {
+func setCsvPath(oldCsvPath string, oldCompanies []Company) (csvPath string, companiesObject []Company) {
 	ClearScreen()
 
 	fmt.Print("\nCSV format: Emails, CC")
 	fmt.Print("\nExample line: x@stud.ntnu.no, y@stud.ntnu.no z@stud.ntnu.no ")
-	fmt.Print("\nThere can be 1 email and 0...n CC\n")
+	fmt.Print("\nThere has be 1 customer email and 0...n CC\n")
 	var companies []Company
 
 	read := bufio.NewReader(os.Stdin)
 	fmt.Printf("\nCurrent absolute path: %v", oldCsvPath)
-	fmt.Print("\nNew absolute path: ")
+	fmt.Print("\nNew absolute path (Q to exit): ")
 	newCsvPath, _ := read.ReadString('\n')
 	newCsvPath = strings.TrimSpace(newCsvPath)
+
+	if strings.ToLower(newCsvPath) == "q" {
+		return oldCsvPath, oldCompanies
+	}
 
 	file, err := os.Open(newCsvPath)
 	if err != nil {

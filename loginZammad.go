@@ -124,9 +124,4 @@ func LoginZammad(page playwright.Page) {
 		time.Sleep(2 * time.Second)
 		LoginZammad(page)
 	}
-
-	err = ticketButton.Click()
-	if err != nil {
-		log.Fatalf("could not click the ticket button: %v", err)
-	}
 }
