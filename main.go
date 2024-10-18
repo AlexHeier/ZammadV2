@@ -42,7 +42,19 @@ func main() {
 		log.Fatalf("could not create page: %v", err)
 	}
 
+	err = page.SetViewportSize(1920, 1080) // 1080p to load the intire Zammad page
+	if err != nil {
+		fmt.Println("Error setting viewport size:", err)
+	}
+
 	LoginZammad(page)
 
-	TerminalOptions(page)
+	page.SetDefaultTimeout(10000)
+
+	mailGroup, mailTitle, mailOwner, mailText, companies := TerminalOptions(page)
+
+	SendMails(mailGroup, mailTitle, mailOwner, mailText, companies, page)
+	ClearScreen()
+	fmt.Print("\nTakk for at du brukte Zammad V2 laget av Alexander Engebrigtsen Heier :)\n\n")
+
 }
