@@ -32,7 +32,7 @@ func TerminalOptions(page playwright.Page) (string, string, []string, []string, 
 
 	for {
 		// Assuming emailOptions is defined elsewhere and works as expected
-		emailOptions(mailGroup, mailTitle, mailCustomerPath, mailOwner, len(mailText) > 0)
+		emailOptions(mailGroup, mailTitle, companies, mailOwner, len(mailText) > 0)
 
 		answer, err := reader.ReadString('\n')
 		if err != nil {
@@ -66,16 +66,30 @@ func TerminalOptions(page playwright.Page) (string, string, []string, []string, 
 	}
 }
 
-func emailOptions(mailGroup, mailTitle, mailCustomerPath string, mailOwner []string, hasText bool) {
+func emailOptions(mailGroup, mailTitle string, companies []Company, mailOwner []string, hasText bool) {
 	ClearScreen()
-	fmt.Printf("\n1) Set email owner(s). Current:                      %s", mailOwner)
-	fmt.Printf("\n2) Set email group. Current:                         %s", mailGroup)
-	fmt.Printf("\n3) Set email title. Current:                         %s", mailTitle)
-	fmt.Printf("\n4) Set email content or path. Have (bool):           %v", hasText)
-	fmt.Printf("\n5) Set email customer and CC file path. Current:     %s", mailCustomerPath)
-	fmt.Printf("\nS) to the send mail(s)")
+	fmt.Printf("\n1) Set email owner(s). Current:                             %s", defaultIfENotSet(strings.Join(mailOwner, ", ")))
+	fmt.Printf("\n2) Set email group. Current:                                %s", defaultIfENotSet(mailGroup))
+	fmt.Printf("\n3) Set email title. Current:                                %s", defaultIfENotSet(mailTitle))
+	fmt.Printf("\n4) Set email content or path. Have:                         %s", boolTrueFalseString(hasText))
+	fmt.Printf("\n5) Set email customer and CC file path. Current emails:     %v", len(companies))
+	fmt.Printf("\nS) to send the mail(s)")
 	fmt.Printf("\nQ) to quit the program")
 	fmt.Print("\n\nChoice: ")
+}
+
+func defaultIfENotSet(s string) string {
+	if s == "" {
+		return "Not Set"
+	}
+	return s
+}
+
+func boolTrueFalseString(b bool) string {
+	if b {
+		return "True"
+	}
+	return "False"
 }
 
 func setMailOwner(currentOwners []string) []string {
@@ -224,6 +238,7 @@ func setCsvPath(oldCsvPath string, oldCompanies []Company) (csvPath string, comp
 	fmt.Print("\nCSV format: Emails, CC")
 	fmt.Print("\nExample line: x@stud.ntnu.no, y@stud.ntnu.no z@stud.ntnu.no ")
 	fmt.Print("\nThere has be 1 customer email and 0...n CC\n")
+	fmt.Printf("\nEmails in current .CSV file: %v\n", len(oldCompanies))
 	var companies []Company
 
 	read := bufio.NewReader(os.Stdin)
@@ -482,7 +497,7 @@ func sendMailConfirm(mailGroup, mailTitle string, mailOwner, mailText []string, 
 
 	// Print the not found owners
 	if len(notFound) > 0 {
-		fmt.Println("The following owners were not found:")
+		fmt.Println("\nThe following owners were not found:")
 		for _, name := range notFound {
 			fmt.Println(name)
 		}
@@ -620,7 +635,7 @@ Web: https://login.no/`, selectedOwner, mailGroup)
 	screenshotFullPath := filepath.Join(pwd, screenshotPath)
 
 	for {
-		fmt.Printf("\n\nScreenshot taken %s. Does everything look correct? (y/n): ", screenshotFullPath)
+		fmt.Println("\nDoes screenshot look correct? (y/n): ")
 		response, _ = reader.ReadString('\n')
 		response = strings.ToLower(strings.TrimSpace(response)) // Convert to lowercase and trim whitespace
 
@@ -636,6 +651,7 @@ Web: https://login.no/`, selectedOwner, mailGroup)
 
 	// Delete the screenshot file
 	_ = os.Remove(screenshotPath)
+	fmt.Printf("\nDeleting screenshot: %s", screenshotFullPath)
 
 	if response != "y" {
 		return false
