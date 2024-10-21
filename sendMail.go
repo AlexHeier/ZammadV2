@@ -65,7 +65,11 @@ func SendMails(mailGroup, mailTitle string, mailOwner, mailText []string, compan
 
 		err = inputTitle.Fill(mailTitle)
 		if err != nil {
-			log.Fatalf("could not fill the input field: %v", err)
+			log.Fatalf("could not fill the input field of the email: Error: %v on mail number: %v", err, i+1)
+		}
+
+		if err != nil {
+			log.Fatalf("Error waiting for PUT response: %v", err)
 		}
 
 		inputGroup := page.Locator(`input[name="group_id"]`)
@@ -119,7 +123,16 @@ func SendMails(mailGroup, mailTitle string, mailOwner, mailText []string, compan
 			bufio.NewReader(os.Stdin).ReadString('\n') // Wait for user input
 			return
 		}
+
 		err = emailInput.Fill(comp.Emails)
+		if err != nil {
+			log.Fatalf("could not fill the input the email. Error: %v Email number: %s", err, i+1)
+		}
+
+		if err != nil {
+			log.Fatalf("Error waiting for PUT response: %v", err)
+		}
+
 		if err != nil {
 			fmt.Println("Error filling email input:", err)
 			fmt.Println("Press Enter to continue...")
@@ -184,14 +197,25 @@ Web: https://login.no/`, owner, mailGroup)
 		combinedContent := newContent + "\n" + fromGreating
 
 		// Set the new content back to the text field
+
 		err = textField.Fill(combinedContent)
+		if err != nil {
+			log.Fatalf("could not fill the email content field. Error: %v Email number: %v", err, i+1)
+		}
+
+		if err != nil {
+			log.Fatalf("Error waiting for PUT response: %v", err)
+		}
+
+		if err != nil {
+			log.Fatalf("Error waiting for PUT response: %v", err)
+		}
+
 		if err != nil {
 			fmt.Println("Error setting new input value:", err)
 			time.Sleep(5 * time.Second)
 			return
 		}
-
-		time.Sleep(8 * time.Second)
 
 		// Locate the button by its class or type and click it
 		createButton := page.Locator(`button[type="submit"].btn.btn--success.js-submit`)
@@ -200,11 +224,20 @@ Web: https://login.no/`, owner, mailGroup)
 			log.Printf("could not find the Create button: %v", err)
 			time.Sleep(5 * time.Second)
 		}
+		time.Sleep(8 * time.Second)
 		err = createButton.Click()
+		if err != nil {
+			fmt.Print("\nCount send the mail to %s number %s", emailInput, i+1)
+			continue
+		}
+
+		if err != nil {
+			log.Fatalf("Error waiting for POST response: %v", err)
+		}
 		if err != nil {
 			log.Printf("could not click the Create button: %v", err)
 			time.Sleep(5 * time.Second)
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 }

@@ -594,8 +594,6 @@ Web: https://login.no/`, selectedOwner, mailGroup)
 		}
 	}
 
-	fmt.Print("\nScreenshot")
-
 	screenshotPath := filepath.Join(".", "new_ticket_screenshot.png")
 
 	// Take a screenshot of the specific div
